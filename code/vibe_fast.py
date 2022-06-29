@@ -3,7 +3,7 @@ import numpy as np
 import time
 
 class vibe_gray:
-    def __init__(self, ):
+    def __init__(self):
         self.width = 0
         self.height = 0
         self.numberOfSamples = 20

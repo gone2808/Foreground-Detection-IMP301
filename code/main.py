@@ -11,7 +11,7 @@ from vibe_fast import vibe_gray
 from vibe_psudo_implementation import ViBE_algorithm
 
 
-def demo_video(path, bg_algo=vibe_gray(), gray=True):
+def demo_video(path, bg_algo=ViBE_algorithm(), gray=True):
     cap = cv.VideoCapture(path)
     bg_algo = bg_algo
     frame_index = 0
@@ -39,16 +39,20 @@ def demo_video(path, bg_algo=vibe_gray(), gray=True):
     cv.destroyAllWindows()
     
 def demo_frames(path, bg_algo=vibe_gray(), gray=True):
+    t0 = time.time()
     list_frames = sorted(glob(path + '/input/*.jpg'))
-    for path in list_frames:
+    first_frame = cv.imread(list_frames[0])
+    print('Size of image: ', first_frame.shape)
+    for path in tqdm(list_frames):
         frame = cv.imread(path)
         if gray == True:
             gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
         mask = bg_algo.apply(gray_frame)
-        cv.imshow('frame', frame)
-        cv.imshow('mask', mask)
+        # cv.imshow('frame', frame)
+        # cv.imshow('mask', mask)
         if cv.waitKey(1) & 0xFF == ord('q'):                                 # Break while loop if video ends
             break
+    print('FPS: %.2f' % (len(list_frames) / (time.time() - t0)))
         
 def evaluate_frames(path, bg_algo=vibe_gray(), gray=True):
     list_frames = sorted(glob(path + '/input/*.jpg'))
@@ -89,7 +93,7 @@ def evaluate_frames(path, bg_algo=vibe_gray(), gray=True):
             Space_ROI = False
             print('Space ROI is not same size with the input image')
         
-        # cv.imshow('frame', image)
+        cv.imshow('frame', image)
         
         if(gray == True):
             image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
@@ -120,8 +124,8 @@ def evaluate_frames(path, bg_algo=vibe_gray(), gray=True):
                 fp += np.sum(np.logical_and(SROI,np.logical_and(mask, np.logical_xor(gt,mask))))
         
         # cv.imshow('img_bgmodel', img_bgmodel)
-        # cv.imshow('mask',mask)
-        # cv.waitKey(1)
+        cv.imshow('mask',mask)
+        cv.waitKey(1)
     cv.destroyAllWindows()
     rec = tp/(tp+fn)
     pr = tp/(tp+fp)
@@ -141,7 +145,7 @@ def evaluate_frames(path, bg_algo=vibe_gray(), gray=True):
     return rec, pr, f1, sp, fpr, fnr, pwc
 
 
-def evaluate_CDnet2014(root_path, bg_algo=vibe_gray(), gray=True):
+def evaluate_CDnet(root_path, bg_algo=vibe_gray(), gray=True):
     sub_vid = []
     rec = []
     pr = []
@@ -170,6 +174,6 @@ def evaluate_CDnet2014(root_path, bg_algo=vibe_gray(), gray=True):
             
 if __name__ == '__main__':
     # demo_video('')
-    demo_frames(r'E:\VHT\CDnet2012\dataset2012\dataset\baseline\highway')
-    # evaluate_frames(r'E:\VHT\CDnet2012\dataset2012\dataset\baseline\highway')
+    demo_frames(r'E:\VHT\CDnet2012\dataset2012\dataset\intermittentObjectMotion\tramstop')
+    # evaluate_frames(r'E:\VHT\CDnet2012\dataset2012\dataset\dynamicBackground\fountain02')
     # evaluate_CDnet2014('E:\VHT\CDnet2012\dataset2012')
